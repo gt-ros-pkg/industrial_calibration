@@ -107,6 +107,7 @@ add_executable(mono_ex_cal src/mono_ex_cal.cpp)
 add_executable(test_obs src/test_ros_cam_obs.cpp)
 add_executable(service_node src/calibration_service.cpp)
 add_executable(trigger_service src/ros_scene_trigger_server.cpp)
+add_executable(camera_throttle src/ros_camera_throttler.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -118,6 +119,7 @@ target_link_libraries(mono_ex_cal ${CERES_LIBRARIES} )
 target_link_libraries(test_obs industrial_extrinsic_cal yaml-cpp ${catkin_LIBRARIES} ${CERES_LIBRARIES})
 target_link_libraries(service_node industrial_extrinsic_cal ${CERES_LIBRARIES})
 target_link_libraries(trigger_service ${catkin_LIBRARIES} )
+target_link_libraries(camera_throttle ${catkin_LIBRARIES} )
 
 catkin_add_gtest(utest_inds_cal test/utest.cpp)
 target_link_libraries(utest_inds_cal ${PROJECT_NAME} industrial_extrinsic_cal ${catkin_LIBRARIES} ${CERES_LIBRARIES})

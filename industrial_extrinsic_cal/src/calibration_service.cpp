@@ -38,10 +38,10 @@ public:
     priv_nh.getParam("camera_file", camera_file);
     priv_nh.getParam("target_file", target_file);
     priv_nh.getParam("cal_job_file", caljob_file);
-    priv_nh.getParam("store_results_package_name", ros_package_name);
+    priv_nh.getParam("package_name", ros_package_name);
     priv_nh.getParam("store_results_file_name", launch_file_name);
     
-    std::string path = ros::package::getPath("industrial_extrinsic_cal");
+    std::string path = ros::package::getPath(ros_package_name);
     std::string file_path=path+"/yaml/";
     ROS_INFO("path: %s",file_path.c_str());
     ROS_INFO("camera_file: %s",camera_file.c_str());

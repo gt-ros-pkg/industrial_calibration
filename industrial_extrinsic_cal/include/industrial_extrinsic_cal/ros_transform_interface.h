@@ -54,6 +54,9 @@ namespace industrial_extrinsic_cal
     /** @brief  this is a listener interface, so this does nothing */
     bool pushTransform(Pose6d & Pose){ return(true);};
 
+    /** @brief a sets ref_frame_, but also starts the timer for broadcasting the transform */
+    void setReferenceFrame(std::string & ref_frame);
+
     /** @brief get the transform from tf */
     Pose6d pullTransform();
 
@@ -93,6 +96,9 @@ namespace industrial_extrinsic_cal
 
     /** @brief this returns the transform from the optical frame to the reference frame as returned by tf */
     Pose6d pullTransform();
+
+    /** @brief a sets ref_frame_, but also starts the timer for broadcasting the transform */
+    void setReferenceFrame(std::string & ref_frame);
 
     /** @brief as a listener interface, this does nothing because transform defined by urdf*/
     bool store(std::string & filePath) {return(true);};

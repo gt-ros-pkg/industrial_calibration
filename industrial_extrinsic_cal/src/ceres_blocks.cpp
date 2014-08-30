@@ -129,6 +129,7 @@ P_BLOCK CeresBlocks::getMovingTargetPoseParameterBlock(string target_name, int s
   {
     if (target_name == moving_target->targ_->target_name_ && scene_id == moving_target->scene_id_)
     {
+      ROS_INFO("PPPPPPPPPPPPPPPPPPPPPPPP");
       P_BLOCK pose = &(moving_target->targ_->pose_.pb_pose[0]);
       return (pose);
     }

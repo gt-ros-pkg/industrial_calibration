@@ -32,6 +32,7 @@ namespace industrial_extrinsic_cal
 
   Pose6d  ROSListenerTransInterface::pullTransform()
   {
+    ROS_INFO("ROSListenerTransInterface::pullTransform()");
     if(!ref_frame_initialized_){
       Pose6d pose(0,0,0,0,0,0);
       ROS_ERROR("Trying to pull transform from interface without setting reference frame");
@@ -46,8 +47,15 @@ namespace industrial_extrinsic_cal
       tf_listener_.lookupTransform(transform_frame_,ref_frame_, now, transform);
       pose_.setBasis(transform.getBasis());
       pose_.setOrigin(transform.getOrigin());
+      ROS_INFO_STREAM("FOUND TRANSFORM " << transform.getBasis()[0] << "\n");
       return(pose_);
     }
+  }
+
+  void  ROSListenerTransInterface::setReferenceFrame(string & ref_frame)
+  {
+    ref_frame_              = ref_frame;
+    ref_frame_initialized_ = true;
   }
 
   ROSCameraListenerTransInterface::ROSCameraListenerTransInterface(const string & transform_frame) 
@@ -75,6 +83,12 @@ namespace industrial_extrinsic_cal
       pose_.setOrigin(transform.getOrigin());
       return(pose_);
     }
+  }
+
+  void  ROSCameraListenerTransInterface::setReferenceFrame(string & ref_frame)
+  {
+    ref_frame_              = ref_frame;
+    ref_frame_initialized_ = true;
   }
 
   /** @brief this object is intened to be used for cameras not targets
@@ -165,8 +179,9 @@ namespace industrial_extrinsic_cal
     transform_.setOrigin(pose_.getOrigin());
     transform_.child_frame_id_ = transform_frame_;
     transform_.frame_id_ = ref_frame_;
-    //    ROS_INFO("broadcasting %s in %s",transform_frame_.c_str(),ref_frame_.c_str());
-    tf_broadcaster_.sendTransform(tf::StampedTransform(transform_, ros::Time::now(), transform_frame_, ref_frame_));
+        ROS_INFO("broadcasting %s in %s",transform_frame_.c_str(),ref_frame_.c_str());
+    if(transform_frame_.length() != 0)
+      tf_broadcaster_.sendTransform(tf::StampedTransform(transform_, ros::Time::now(), transform_frame_, ref_frame_));
   }
 
   ROSCameraBroadcastTransInterface::ROSCameraBroadcastTransInterface(const string & transform_frame, const Pose6d & pose)

@@ -521,6 +521,7 @@ namespace industrial_extrinsic_cal
     world_point_loc[0] = world_point_loc[0] + target_loc[0];
     world_point_loc[1] = world_point_loc[1] + target_loc[1];
     world_point_loc[2] = world_point_loc[2] + target_loc[2];
+    ROS_INFO_STREAM("world_point_loc " << world_point_loc[0] << ", " << world_point_loc[1] << ", " << world_point_loc[2] << "\n");
 
     /** rotate and translate points into camera frame */
     /*  Note that camera transform is from world into camera frame, not vise versa */
@@ -531,6 +532,8 @@ namespace industrial_extrinsic_cal
     camera_point_loc[0] = camera_point_loc[0] + camera_loc[0]; /**< point rotated and translated */
     camera_point_loc[1] = camera_point_loc[1] + camera_loc[1];
     camera_point_loc[2] = camera_point_loc[2] + camera_loc[2];
+    ROS_INFO_STREAM("camera_point_loc " << camera_point_loc[0] << ", " << camera_point_loc[1] << ", " << camera_point_loc[2] << "\n");
+    ROS_INFO_STREAM("camera_loc " << camera_loc[0] << ", " << camera_loc[1] << ", " << camera_loc[2] << "\n");
 
     T xp1 = camera_point_loc[0]; // shorten variable names to make equations easier to read
     T yp1 = camera_point_loc[1];

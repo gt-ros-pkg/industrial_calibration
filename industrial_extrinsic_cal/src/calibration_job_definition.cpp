@@ -369,11 +369,14 @@ namespace industrial_extrinsic_cal
 	    for (unsigned int i = 0; i < target_parameters->size(); i++)
 	      {
 		(*target_parameters)[i]["target_name"] >> temp_target->target_name_;
-		(*target_parameters)[i]["target_frame"] >> temp_frame;
+		(*target_parameters)[i]["target_frame"] >> temp_target->target_frame_;
 		(*target_parameters)[i]["transform_interface"] >> transform_interface;
+    ROS_INFO_STREAM("sssssssss " << temp_target->target_frame_ << "\n");
 		// install target's transform interface
+    ROS_INFO_STREAM("transform_interface" << transform_interface);
 		if(transform_interface == std::string("ros_lti")){ 
 		  temp_ti = make_shared<ROSListenerTransInterface>(temp_target->target_frame_);
+      ROS_INFO("yo");
 		}
 		else if(transform_interface == std::string("ros_bti")){ 
 		  temp_ti = make_shared<ROSBroadcastTransInterface>(temp_target->target_frame_, temp_target->pose_);
@@ -414,21 +417,6 @@ namespace industrial_extrinsic_cal
 		(*target_parameters)[i]["position_x"] >> temp_target->pose_.x;
 		(*target_parameters)[i]["position_y"] >> temp_target->pose_.y;
 		(*target_parameters)[i]["position_z"] >> temp_target->pose_.z;
-		(*target_parameters)[i]["transform_interface"] >> transform_interface;
-		if(transform_interface == std::string("ros_lti")){
-		  temp_ti = make_shared<ROSListenerTransInterface>(temp_target->target_frame_);
-		}
-		if(transform_interface == std::string("ros_bti")){
-		  temp_ti = make_shared<ROSBroadcastTransInterface>(temp_target->target_frame_,temp_target->pose_);
-		}
-		else if(transform_interface == std::string("default_ti")){
-		  temp_ti = make_shared<DefaultTransformInterface>(temp_target->pose_);
-		}
-		else{
-		  ROS_ERROR("Unimplemented Transform Interface: %s",transform_interface.c_str());
-		  temp_ti = make_shared<DefaultTransformInterface>(temp_target->pose_);
-		}
-		temp_target->setTransformInterface(temp_ti);// install the transform interface 
 		(*target_parameters)[i]["scene_id"] >> scene_id;
 		(*target_parameters)[i]["num_points"] >> temp_target->num_points_;
 		const YAML::Node *points_node = (*target_parameters)[i].FindValue("points");
@@ -653,6 +641,7 @@ namespace industrial_extrinsic_cal
 		  {
 		    ceres_blocks_.addMovingTarget(observation.target, scene_id);
 		    target_pose = ceres_blocks_.getMovingTargetPoseParameterBlock(target_name, scene_id);
+        ROS_WARN_STREAM("yyyyyyyyyyyyyyy " << target_pose[0] << " " << target_pose[1] << " " << target_pose[2] << " ");
 		    pnt_pos = ceres_blocks_.getMovingTargetPointParameterBlock(target_name, pnt_id);
 		  }
 		else
@@ -745,6 +734,25 @@ namespace industrial_extrinsic_cal
 												  point_x,
 												  point_y,
 												  point_z);
+      // printf("image_x %f, image_y %f, circle_dia %f, focal_length_x %f, focal_length_y %f, center_pnt_x %f, center_pnt_y %f, point_x %f, point_y %f, point_z %f\n", image_x, image_y,
+			// 									  circle_dia,
+			// 									  focal_length_x,
+			// 									  focal_length_y,
+			// 									  center_pnt_x,
+			// 									  center_pnt_y,
+			// 									  point_x,
+			// 									  point_y,
+			// 									  point_z);
+      // extrinsics[5] = 1.0;
+      // target_pose[5] = 1.0;
+      printf("extrinsics: ");
+      for(int i=0;i<6;i++)
+        printf("%f ", extrinsics[i]);
+      printf("\n");
+      printf("target_pose: ");
+      for(int i=0;i<6;i++)
+        printf("%f ", target_pose[i]);
+      printf("\n");
 		  // add it as a residual using parameter blocks
 		  problem_.AddResidualBlock(cost_function, NULL , extrinsics, target_pose);
 		}
@@ -767,6 +775,10 @@ namespace industrial_extrinsic_cal
       }//for each scene
     ROS_INFO("total observations: %d ",total_observations);
 
+    ROS_INFO("EVALUATE");
+    double cost;
+    problem_.Evaluate(ceres::Problem::EvaluateOptions(), &cost, NULL, NULL, NULL);
+    ROS_INFO_STREAM("Cost:" << cost);
     // Make Ceres automatically detect the bundle structure. Note that the
     // standard solver, SPARSE_NORMAL_CHOLESKY, also works fine but it is slower
     // for standard bundle adjustment problems.
@@ -776,6 +788,7 @@ namespace industrial_extrinsic_cal
     options.minimizer_progress_to_stdout = true;
     options.max_num_iterations = 1000;
     ceres::Solve(options, &problem_, &summary);
+    std::cout << summary.FullReport() << "\n";
 
     return true;
   }//end runOptimization
@@ -794,7 +807,7 @@ namespace industrial_extrinsic_cal
   }
   void CalibrationJob::pullTransforms()
   {
-    ceres_blocks_.pushTransforms();
+    ceres_blocks_.pullTransforms();
   }
   void CalibrationJob::pushTransforms()
   {
